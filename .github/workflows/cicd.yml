@@ -1,0 +1,36 @@
+
+name: Basic CI-CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build application
+        run: python -m py_compile app.py test_app.py
+
+      - name: Run tests
+        run: python -m unittest -v test_app
+
+      - name: Deploy application
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p deploy
+          cp app.py deploy/
+          echo "Sample application deployment completed."
+          ls -l deploy
